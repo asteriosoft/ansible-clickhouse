@@ -1,0 +1,43 @@
+---
+- name: Set ClickHose Connection String
+  set_fact: clickhouse_connection_string="clickhouse-client -h 127.0.0.1 --port {{ clickhouse_tcp_secure_port | default(clickhouse_tcp_port) }}{{' --secure' if clickhouse_tcp_secure_port is defined else '' }}"
+
+- name: Config | Create directory for init ddl
+  file:
+    path: "{{ clickhouse_path_init_scripts }}"
+    state: directory
+    owner: "{{ clickhouse_user | default('clickhouse') }}"
+    group: "{{ clickhouse_group | default('clickhouse') }}"
+    mode: "ug=rwx,o-rwx"
+  become: true
+  when: init_scripts|bool
+
+- name: Config | Copy custom (playbook level) init scripts
+  template:
+    src: "{{ item }}"
+    dest: '{{ clickhouse_path_init_scripts }}/{{ item | basename }}'
+  with_fileglob:
+    - "{{ clickhouse_custom_init_scripts_dir }}/*.sql"
+  when: init_scripts|bool
+
+- name: Config | Copy default init scripts
+  template:
+    src: "{{ item }}"
+    dest: '{{ clickhouse_path_init_scripts }}/{{ item | basename | regex_replace("\.j2$", ".sql") }}'
+  with_fileglob:
+    - "{{ role_path }}/templates/init_scripts/*.j2"
+  when: init_scripts|bool
+
+- name: Config | Run init scripts
+  shell: |
+    for f in {{ clickhouse_path_init_scripts }}/*.sql; do ({{ clickhouse_connection_string }} -mn --queries-file "$f") done
+  register: result
+  when: init_scripts|bool
+
+- name: Config | Disable default user
+  lineinfile:
+    path: "{{ clickhouse_path_configdir }}/users.d/default.xml"
+    search_string: '<default>'
+    line: '        <default remove="remove">'
+  when: ( disable_default_user|bool ) and ( init_scripts|bool )
+  ignore_errors: "{{ ansible_check_mode }}"

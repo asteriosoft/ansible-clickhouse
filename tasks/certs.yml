@@ -1,0 +1,110 @@
+---
+- name: Certs | Create CA directory on all servers
+  file:
+    dest: "/etc/clickhouse/ca"
+    owner: "{{ clickhouse_user | default('clickhouse') }}"
+    group: "{{ clickhouse_group | default('clickhouse') }}"
+    mode: "ug=rwx,o-rwx"
+    state: directory
+
+- name: Certs | Create certs directories on all servers
+  file:
+    dest: "/etc/clickhouse/certs"
+    owner: "{{ clickhouse_user | default('clickhouse') }}"
+    group: "{{ clickhouse_group | default('clickhouse') }}"
+    mode: 0755
+    state: directory
+
+# Create CA on first server
+
+- name: Certs | Create private CA key on first server
+  community.crypto.openssl_privatekey:
+    path: /etc/clickhouse/ca/ca-certificate.key
+    size: 2048
+  delegate_to: "{{ play_hosts | first }}"
+  run_once: true
+
+- name: Certs | Create certificate signing request (CSR) for CA certificate on first server
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: /etc/clickhouse/ca/ca-certificate.key
+    common_name: alkimi.local CA
+    use_common_name_for_san: false  # since we do not specify SANs, don't use CN as a SAN
+    basic_constraints:
+      - 'CA:TRUE'
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+    key_usage_critical: true
+  delegate_to: "{{ play_hosts | first }}"
+  register: ca_csr
+  
+- name: Certs | Create self-signed CA certificate from CSR on first server
+  community.crypto.x509_certificate:
+    path: /etc/clickhouse/ca/ca-certificate.crt
+    csr_content: "{{ ca_csr.csr }}"
+    selfsigned_not_after: "+3651d"
+    privatekey_path: /etc/clickhouse/ca/ca-certificate.key
+    provider: selfsigned
+  delegate_to: "{{ play_hosts | first }}"
+  run_once: true
+
+- name: Read CA certificate
+  slurp:
+    src: "/etc/clickhouse/ca/ca-certificate.crt"
+  delegate_to: "{{ play_hosts | first }}"
+  register: ca_certificate
+
+# Generate certs on every server
+
+- name: Write CA certificate file to server
+  copy:
+    dest: "/etc/clickhouse/ca/ca-certificate.crt"
+    content: "{{ ca_certificate.content| b64decode }}"
+    group: clickhouse
+    owner: clickhouse
+    mode: 0600
+
+- name: Certs | Create private key for new certificate on all servers
+  community.crypto.openssl_privatekey:
+    path: /etc/clickhouse/certs/{{ name }}.key
+    group: clickhouse
+    owner: clickhouse
+    mode: 0600
+
+- name: Create certificate signing request (CSR) for new certificate on all servers
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: /etc/clickhouse/certs/{{ name }}.key
+    common_name: "/CN={{ name }}"
+  register: csr
+
+- name: Check whether certificate exists
+  stat:
+    path: "/etc/clickhouse/certs/{{ name }}.crt"
+  register: certificate_exists
+
+- name: Read existing certificate if exists
+  slurp:
+    src: "/etc/clickhouse/certs/{{ name }}.crt"
+  when: certificate_exists.stat.exists
+  register: certificate
+
+- name: Sign certificate with our CA
+  community.crypto.x509_certificate_pipe:
+    content: "{{ (certificate.content | b64decode) if certificate_exists.stat.exists else omit }}"
+    csr_content: "{{ csr.csr }}"
+    provider: ownca
+    ownca_path: /etc/clickhouse/ca/ca-certificate.crt
+    ownca_privatekey_path: /etc/clickhouse/ca/ca-certificate.key
+    ownca_not_after: +3650d
+    ownca_not_before: "-1d"  # valid since yesterday
+  delegate_to: "{{ play_hosts | first }}"
+  register: certificate
+
+- name: Write certificate file to server
+  copy:
+    dest: "/etc/clickhouse/certs/{{ name }}.crt"
+    content: "{{ certificate.certificate }}"
+    group: clickhouse
+    owner: clickhouse
+    mode: 0600
+  when: certificate is changed

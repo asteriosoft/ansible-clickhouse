@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+{{ ansible_managed | comment('xml') }} 
+<clickhouse>
+<!-- Users and ACL. -->
+    <users>
+    <!-- Default users. -->
+    {% for user in clickhouse_users_default %}
+    {% if user.comment is defined %}
+    <!-- {{user.comment}} -->
+    {% endif %}
+    <{{ user.name }}>
+        {% if user.name == 'default' %}
+        <access_management>1</access_management>
+        <named_collection_control>1</named_collection_control>
+        <show_named_collections>1</show_named_collections>
+        <show_named_collections_secrets>1</show_named_collections_secrets>
+        {% endif %}
+        {% if user.password is defined and user.password_sha256_hex is not defined %}
+        <password>{{ user.password }}</password>
+        {% elif user.password is not defined and user.password_sha256_hex is defined %}
+        <password_sha256_hex>{{ user.password_sha256_hex }}</password_sha256_hex>
+        {% elif user.password is defined and user.password_sha256_hex is defined %}
+        <password_sha256_hex>{{ user.password_sha256_hex }}</password_sha256_hex>
+        {% endif %}
+        <networks incl="networks" replace="replace">
+        {% for net in user.networks %}
+        <ip>{{ net }}</ip>
+        {% endfor %}
+        </networks>
+        <profile>{{ user.profile }}</profile>
+        <quota>{{ user.quota }}</quota>
+        {% if user.dbs is defined %}
+         <allow_databases>
+        {% for db in user.dbs %}
+            <database>{{ db }}</database>
+        {% endfor %}
+        </allow_databases>
+        {% endif %}
+    </{{ user.name }}>
+    {% endfor %}
+    <!-- Custom users. -->
+    </users>
+</clickhouse>

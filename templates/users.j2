@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+{{ ansible_managed | comment('xml') }} 
+<clickhouse>
+   <profiles>
+    <!-- Profiles of settings. -->
+    <!-- Default profiles. -->
+    {% for dict_item in clickhouse_profiles_default %}
+    <{{ dict_item }}>
+    {% for item in clickhouse_profiles_default[dict_item] %}
+        <{{ item }}>{{ clickhouse_profiles_default[dict_item][item] }}</{{ item }}>
+    {% endfor %}
+    </{{ dict_item }}>
+    {% endfor %}
+    <!-- Default profiles end. -->
+    <!-- Custom profiles. -->
+    {% for dict_item in clickhouse_profiles_custom %}
+    <{{ dict_item }}>
+    {% for item in clickhouse_profiles_custom[dict_item] %}
+        <{{ item }}>{{ clickhouse_profiles_custom[dict_item][item] }}</{{ item }}>
+    {% endfor %}
+    </{{ dict_item }}>
+    {% endfor %}
+    <!-- Custom profiles end. -->
+    </profiles>
+
+    <!-- Quotas. -->
+    <quotas>
+        <!-- Default quotas. -->
+    {% for quota in clickhouse_quotas_default %}
+    <{{ quota.name }}>
+    {% for interval in quota.intervals %}
+    <interval>
+        <duration>{{ interval.duration }}</duration>
+        <queries>{{ interval.queries }}</queries>
+        <errors>{{ interval.errors }}</errors>
+        <result_rows>{{ interval.result_rows }}</result_rows>
+        <read_rows>{{ interval.read_rows }}</read_rows>
+        <execution_time>{{ interval.execution_time }}</execution_time>
+    </interval>
+    {% endfor %}
+    </{{ quota.name }}>
+    {% endfor %}
+    {% for quota in clickhouse_quotas_custom %}
+    <{{ quota.name }}>
+    {% for interval in quota.intervals %}
+    <interval>
+        <duration>{{ interval.duration }}</duration>
+        <queries>{{ interval.queries }}</queries>
+        <errors>{{ interval.errors }}</errors>
+        <result_rows>{{ interval.result_rows }}</result_rows>
+        <read_rows>{{ interval.read_rows }}</read_rows>
+        <execution_time>{{ interval.execution_time }}</execution_time>
+    </interval>
+    {% endfor %}
+    </{{ quota.name }}>
+    {% endfor %}
+    </quotas>
+</clickhouse>
