@@ -16,12 +16,16 @@ Example Playbook
   gather_facts: yes
 
   vars:
-    vault_cluster_name: "vault-test-cluster"
-    vault_gcp_auto_unseal:
-      project: "gcp-project-name"
-      keyring_name: "keyring-name"
-      keyring_region: "europe-west2"
-      key_name: "vault-key"
+    clickhouse_dbs_custom:
+      - name: test
+        state: present
+    clickhouse_users_custom: 
+      - name: "admin"
+        password: "password"
+        host: LOCAL
+        grant: 'ALL ON *.*'
+        grant_option: true
+    clickhouse_prometheus_endpoint: true
 
   roles:
     - vault
