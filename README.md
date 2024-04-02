@@ -26,6 +26,7 @@ Example Playbook
         grant: 'ALL ON *.*'
         grant_option: true
     clickhouse_prometheus_endpoint: true
+    clickhouse_tune_os: false
 
   roles:
     - vault
