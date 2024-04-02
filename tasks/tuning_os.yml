@@ -1,0 +1,22 @@
+# Based of clickhouse team recommendations https://clickhouse.com/docs/en/operations/tips
+---
+- name: Increase open files limit
+  block:
+    - pam_limits:
+        domain: '*'
+        limit_type: soft
+        limit_item: nofile
+        value: 1000000
+    - pam_limits:
+        domain: '*'
+        limit_type: hard
+        limit_item: nofile
+        value: 1000000
+
+- name: Tune kernel options
+  block:
+    - sysctl:
+        name: vm.overcommit_memory
+        value: 1
+        state: present
+        sysctl_set: yes

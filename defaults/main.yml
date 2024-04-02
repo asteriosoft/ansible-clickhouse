@@ -168,3 +168,5 @@ clickhouse_kafka_config: []
 clickhouse_kafka_topics_config: []
 
 clickhouse_merge_tree_config: []
+
+clickhouse_tune_os: true

@@ -11,6 +11,11 @@
         - 'vars'
   tags: [always]
 
+- name: "Tuning OS"
+  import_tasks: tuning_os.yml
+  when: clickhouse_tune_os == true
+  tags: [tune_os]
+
 - include_tasks: precheck.yml
   tags: [always]
 
