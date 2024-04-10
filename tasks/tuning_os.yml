@@ -23,3 +23,9 @@
         value: 1
         state: present
         sysctl_set: yes
+    - name: "Tune kernel options: kernel.task_delayacct"
+      sysctl:
+        name: kernel.task_delayacct
+        value: 1
+        state: present
+        sysctl_set: yes
