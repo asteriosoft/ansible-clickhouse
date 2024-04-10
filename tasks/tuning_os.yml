@@ -18,7 +18,7 @@
 - name: Tune kernel options
   block:
     - name: "Tune kernel options: vm.overcommit_memory"
-    - sysctl:
+      sysctl:
         name: vm.overcommit_memory
         value: 1
         state: present
