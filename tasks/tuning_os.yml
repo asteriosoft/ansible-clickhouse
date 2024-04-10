@@ -2,12 +2,14 @@
 ---
 - name: Increase open files limit
   block:
-    - pam_limits:
+    - name: "Increase open files limit: soft"
+      pam_limits:
         domain: '*'
         limit_type: soft
         limit_item: nofile
         value: 1000000
-    - pam_limits:
+    - name: "Increase open files limit: hard"
+      pam_limits:
         domain: '*'
         limit_type: hard
         limit_item: nofile
@@ -15,6 +17,7 @@
 
 - name: Tune kernel options
   block:
+    - name: "Tune kernel options: vm.overcommit_memory"
     - sysctl:
         name: vm.overcommit_memory
         value: 1
