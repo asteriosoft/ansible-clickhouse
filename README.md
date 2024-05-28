@@ -29,6 +29,6 @@ Example Playbook
     clickhouse_tune_os: false
 
   roles:
-    - vault
+    - clickhouse
 ```
 
