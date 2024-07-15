@@ -59,8 +59,8 @@ clickhouse_tcp_port: 9000
 #clickhouse_tcp_secure_port: 9440
 
 clickhouse_ssl_server:
-  certificate_file: "/etc/clickhouse/certs/{{ name }}.crt"
-  private_key_file: "/etc/clickhouse/certs/{{ name }}.key"
+  certificate_file: "/etc/clickhouse/certs/{{ inventory_hostname }}.crt"
+  private_key_file: "/etc/clickhouse/certs/{{ inventory_hostname }}.key"
   ca_config: "/etc/clickhouse/ca/ca-certificate.crt"
   verification_mode: "relaxed"
   load_default_ca_file: "true"

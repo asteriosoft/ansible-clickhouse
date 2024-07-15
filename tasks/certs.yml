@@ -66,25 +66,25 @@
 
 - name: Certs | Create private key for new certificate on all servers
   community.crypto.openssl_privatekey:
-    path: /etc/clickhouse/certs/{{ name }}.key
+    path: /etc/clickhouse/certs/{{ inventory_hostname }}.key
     group: clickhouse
     owner: clickhouse
     mode: 0600
 
 - name: Create certificate signing request (CSR) for new certificate on all servers
   community.crypto.openssl_csr_pipe:
-    privatekey_path: /etc/clickhouse/certs/{{ name }}.key
-    common_name: "/CN={{ name }}"
+    privatekey_path: /etc/clickhouse/certs/{{ inventory_hostname }}.key
+    common_name: "/CN={{ inventory_hostname }}"
   register: csr
 
 - name: Check whether certificate exists
   stat:
-    path: "/etc/clickhouse/certs/{{ name }}.crt"
+    path: "/etc/clickhouse/certs/{{ inventory_hostname }}.crt"
   register: certificate_exists
 
 - name: Read existing certificate if exists
   slurp:
-    src: "/etc/clickhouse/certs/{{ name }}.crt"
+    src: "/etc/clickhouse/certs/{{ inventory_hostname }}.crt"
   when: certificate_exists.stat.exists
   register: certificate
 
@@ -102,7 +102,7 @@
 
 - name: Write certificate file to server
   copy:
-    dest: "/etc/clickhouse/certs/{{ name }}.crt"
+    dest: "/etc/clickhouse/certs/{{ inventory_hostname }}.crt"
     content: "{{ certificate.certificate }}"
     group: clickhouse
     owner: clickhouse
