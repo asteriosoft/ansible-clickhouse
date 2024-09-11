@@ -23,6 +23,7 @@
     size: 2048
   delegate_to: "{{ play_hosts | first }}"
   run_once: true
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Certs | Create certificate signing request (CSR) for CA certificate on first server
   community.crypto.openssl_csr_pipe:
@@ -37,6 +38,7 @@
     key_usage_critical: true
   delegate_to: "{{ play_hosts | first }}"
   register: ca_csr
+  ignore_errors: '{{ ansible_check_mode }}'
   
 - name: Certs | Create self-signed CA certificate from CSR on first server
   community.crypto.x509_certificate:
@@ -47,12 +49,14 @@
     provider: selfsigned
   delegate_to: "{{ play_hosts | first }}"
   run_once: true
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Read CA certificate
   slurp:
     src: "/etc/clickhouse/ca/ca-certificate.crt"
   delegate_to: "{{ play_hosts | first }}"
   register: ca_certificate
+  ignore_errors: '{{ ansible_check_mode }}'
 
 # Generate certs on every server
 
@@ -63,6 +67,7 @@
     group: clickhouse
     owner: clickhouse
     mode: 0600
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Certs | Create private key for new certificate on all servers
   community.crypto.openssl_privatekey:
@@ -70,23 +75,27 @@
     group: clickhouse
     owner: clickhouse
     mode: 0600
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Create certificate signing request (CSR) for new certificate on all servers
   community.crypto.openssl_csr_pipe:
     privatekey_path: /etc/clickhouse/certs/{{ inventory_hostname }}.key
     common_name: "/CN={{ inventory_hostname }}"
   register: csr
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Check whether certificate exists
   stat:
     path: "/etc/clickhouse/certs/{{ inventory_hostname }}.crt"
   register: certificate_exists
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Read existing certificate if exists
   slurp:
     src: "/etc/clickhouse/certs/{{ inventory_hostname }}.crt"
   when: certificate_exists.stat.exists
   register: certificate
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Sign certificate with our CA
   community.crypto.x509_certificate_pipe:
@@ -99,6 +108,7 @@
     ownca_not_before: "-1d"  # valid since yesterday
   delegate_to: "{{ play_hosts | first }}"
   register: certificate
+  ignore_errors: '{{ ansible_check_mode }}'
 
 - name: Write certificate file to server
   copy:
@@ -108,3 +118,4 @@
     owner: clickhouse
     mode: 0600
   when: certificate is changed
+  ignore_errors: '{{ ansible_check_mode }}'

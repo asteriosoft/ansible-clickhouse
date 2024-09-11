@@ -14,4 +14,4 @@
     clickhouse_tune_os: true
 
   roles:
-    - { role: ../../clickhouse }
+    - { role: ../../../clickhouse }
