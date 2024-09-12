@@ -10,6 +10,10 @@
         host: LOCAL
         grant: 'ALL ON *.*'
         grant_option: true
+      - name: "grafana"
+        password: "password"
+        host: ANY
+        profile: 'readonly2'
     clickhouse_prometheus_endpoint: true
     clickhouse_tune_os: true
 
