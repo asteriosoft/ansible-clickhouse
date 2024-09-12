@@ -1,5 +1,5 @@
 {% for user in clickhouse_users_custom%}
-CREATE USER IF NOT EXISTS {{ user.name }} IDENTIFIED WITH sha256_password BY '{{ user.password }}' HOST {{ user.host }} PROFILE {{ user.profile | default ('default') }};
+CREATE USER IF NOT EXISTS {{ user.name }} IDENTIFIED WITH sha256_password BY '{{ user.password }}' HOST {{ user.host }} SETTINGS PROFILE {{ user.profile | default ('default') }};
 {% if user.grant is defined %}
 GRANT {{ user.grant }} TO {{ user.name }} {{ 'WITH GRANT OPTION' if user.grant_option is defined else ''}};
 {% endif %}
