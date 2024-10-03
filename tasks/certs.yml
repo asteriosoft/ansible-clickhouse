@@ -80,7 +80,7 @@
 - name: Create certificate signing request (CSR) for new certificate on all servers
   community.crypto.openssl_csr_pipe:
     privatekey_path: /etc/clickhouse/certs/{{ inventory_hostname }}.key
-    common_name: "/CN={{ inventory_hostname }}"
+    common_name: "{{ inventory_hostname }}"
   register: csr
   ignore_errors: '{{ ansible_check_mode }}'
 
