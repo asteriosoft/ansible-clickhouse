@@ -10,6 +10,11 @@
         host: LOCAL
         grant: 'ALL ON *.*'
         grant_option: true
+      - name: "db_admin"
+        certificate_cn: "db_admin"
+        host: LOCAL
+        grant: 'ALL ON *.*'
+        grant_option: true
       - name: "grafana"
         password: "password"
         host: ANY

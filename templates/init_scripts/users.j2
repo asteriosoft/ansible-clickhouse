@@ -1,5 +1,9 @@
 {% for user in clickhouse_users_custom%}
+{% if user.password is defined %}
 CREATE USER IF NOT EXISTS {{ user.name }} IDENTIFIED WITH sha256_password BY '{{ user.password }}' HOST {{ user.host }} SETTINGS PROFILE {{ user.profile | default ('default') }};
+{% elif user.certificate_cn is defined %}
+CREATE USER IF NOT EXISTS {{ user.name }} IDENTIFIED WITH ssl_certificate CN '{{ user.certificate_cn }}' HOST {{ user.host }} SETTINGS PROFILE {{ user.profile | default ('default') }};
+{% endif %}
 {% if user.grant is defined %}
 GRANT {{ user.grant }} TO {{ user.name }} {{ 'WITH GRANT OPTION' if user.grant_option is defined else ''}};
 {% endif %}
