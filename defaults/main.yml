@@ -77,6 +77,8 @@ clickhouse_ssl_client:
   prefer_server_ciphers: "true"
   invalid_certificate_handler_name: "RejectCertificateHandler"
 
+#clickhouse_ssl_trusted_ca_file: "{{ playbook_dir }}/trusted_ca.crt"
+
 clickhouse_interserver_http: 9009
 #clickhouse_interserver_https: 9010
 

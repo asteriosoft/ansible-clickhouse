@@ -119,3 +119,10 @@
     mode: 0600
   when: certificate is changed
   ignore_errors: '{{ ansible_check_mode }}'
+
+- name: Certs | Write additional trusted CA certificates to the generated ca-certificate.crt
+  blockinfile:
+    path: "/etc/clickhouse/ca/ca-certificate.crt"
+    block: "{{ lookup('file', clickhouse_ssl_trusted_ca_file) }}"
+  when: ( clickhouse_ssl_trusted_ca_file is defined )
+  ignore_errors: "{{ ansible_check_mode }}"
