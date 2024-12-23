@@ -58,24 +58,28 @@ clickhouse_tcp_port: 9000
 #clickhouse_https_port: 8443
 #clickhouse_tcp_secure_port: 9440
 
-clickhouse_ssl_server:
-  certificate_file: "/etc/clickhouse/certs/{{ inventory_hostname }}.crt"
-  private_key_file: "/etc/clickhouse/certs/{{ inventory_hostname }}.key"
-  ca_config: "/etc/clickhouse/ca/ca-certificate.crt"
-  verification_mode: "relaxed"
-  load_default_ca_file: "true"
-  cache_sessions: "true"
-  disable_protocols: "sslv2,sslv3"
-  prefer_server_ciphers: "true"
+clickhouse_ssl_mode: false
 
-clickhouse_ssl_client:
-  ca_config: "/etc/clickhouse/ca/ca-certificate.crt"
-  verification_mode: "relaxed"
-  load_default_ca_file: "false"
-  cache_sessions: "true"
-  disable_protocols: "sslv2,sslv3"
-  prefer_server_ciphers: "true"
-  invalid_certificate_handler_name: "RejectCertificateHandler"
+# clickhouse_ssl_server:
+#   certificate_file: "/etc/clickhouse/certs/{{ inventory_hostname }}.crt"
+#   private_key_file: "/etc/clickhouse/certs/{{ inventory_hostname }}.key"
+#   ca_config: "/etc/clickhouse/ca/ca-certificate.crt"
+#   verification_mode: "relaxed"
+#   load_default_ca_file: "true"
+#   cache_sessions: "true"
+#   disable_protocols: "sslv2,sslv3"
+#   prefer_server_ciphers: "true"
+
+# clickhouse_ssl_client:
+#   ca_config: "/etc/clickhouse/ca/ca-certificate.crt"
+#   verification_mode: "relaxed"
+#   load_default_ca_file: "false"
+#   cache_sessions: "true"
+#   disable_protocols: "sslv2,sslv3"
+#   prefer_server_ciphers: "true"
+#   invalid_certificate_handler_name: "RejectCertificateHandler"
+
+#clickhouse_ssl_trusted_ca_file: "{{ playbook_dir }}/trusted_ca.crt"
 
 #clickhouse_ssl_trusted_ca_file: "{{ playbook_dir }}/trusted_ca.crt"
 

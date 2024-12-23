@@ -39,7 +39,7 @@
     apply:
       tags: [certs]
   tags: [certs]
-  when: (clickhouse_ssl_server is defined) and (not clickhouse_remove|bool)
+  when: (clickhouse_ssl_server is defined) and (not clickhouse_remove|bool) and (clickhouse_ssl_mode|bool)
 
 - include_tasks: 
     file: configure/sys.yml
